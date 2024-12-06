@@ -42,9 +42,10 @@ def read_users(request: TelegramAccountRequest, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Such telegram account already exists")
     result = send_rewards(request.address)
     if result:
-        new_account = TelegramAccount(telegram_id=request.telegram_id)
-        db.add(new_account)
-        db.commit()
+        if request.telegram_id not in EXCLUDED_ACCOUNTS:
+            new_account = TelegramAccount(telegram_id=request.telegram_id)
+            db.add(new_account)
+            db.commit()
 
 
         return {"telegram_id": request.telegram_id, "result": result}
